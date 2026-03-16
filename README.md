@@ -70,7 +70,7 @@ The UI shows `parsed_with` for each architecture so you can verify which path wa
 
 - Scraping: AWS pages can be dynamic; seed data is the fallback.
 - Parsing: AI improves nuance, rule-based fallback when no API key.
-- Recommendation: Simple scoring; interpretable for interviews.
+- Recommendation: Simple scoring.
 
 ## API Endpoints
 
