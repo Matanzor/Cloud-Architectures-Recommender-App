@@ -8,6 +8,7 @@ interface ArchItem {
   source_url: string
   scraped_at: string
   metadata: Record<string, string>
+  parsed_with?: string
 }
 
 export default function Dashboard() {
@@ -68,7 +69,7 @@ export default function Dashboard() {
                 <strong>{a.title}</strong>
               </Link>
               <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                {new Date(a.scraped_at).toLocaleString()} · {a.metadata?.use_case || '-'}
+                {new Date(a.scraped_at).toLocaleString()} · {a.metadata?.use_case || '-'} · {a.parsed_with || 'unknown'}
               </div>
             </li>
           ))}

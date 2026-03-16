@@ -231,6 +231,7 @@ def get_seed_docs():
             "scraped_at": now,
             "resources": arch["resources"],
             "metadata": arch["metadata"],
+            "parsed_with": "seed",
         }
         docs.append(doc)
     return docs

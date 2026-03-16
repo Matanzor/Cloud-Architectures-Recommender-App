@@ -64,7 +64,7 @@ def parse_blog_post(html: str, url: str, title: str) -> dict | None:
     if len(text) < 100:
         return None
     resources = extract_resources(text)
-    metadata = infer_metadata(text, resources)
+    metadata, parsed_with = infer_metadata(text, resources)
     return {
         "source_url": url,
         "title": title or "Untitled",
@@ -73,6 +73,7 @@ def parse_blog_post(html: str, url: str, title: str) -> dict | None:
         "scraped_at": datetime.utcnow(),
         "resources": resources,
         "metadata": metadata,
+        "parsed_with": parsed_with,
     }
 
 

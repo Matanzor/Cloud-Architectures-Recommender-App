@@ -20,6 +20,7 @@ async def list_architectures(skip: int = 0, limit: int = 50):
             "source_url": doc.get("source_url", ""),
             "scraped_at": doc.get("scraped_at"),
             "metadata": meta,
+            "parsed_with": doc.get("parsed_with", "unknown"),
         })
     return {"architectures": items}
 
@@ -42,6 +43,7 @@ async def get_architecture(arch_id: str):
         "scraped_at": doc.get("scraped_at"),
         "resources": doc.get("resources", []),
         "metadata": doc.get("metadata", {}),
+        "parsed_with": doc.get("parsed_with", "unknown"),
     }
 
 

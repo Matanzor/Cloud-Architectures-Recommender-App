@@ -16,6 +16,7 @@ interface Arch {
   scraped_at: string
   resources: Resource[]
   metadata: Record<string, string>
+  parsed_with?: string
 }
 
 export default function ArchitectureDetail() {
@@ -33,6 +34,9 @@ export default function ArchitectureDetail() {
     <div>
       <Link to="/" style={{ marginBottom: 16, display: 'block' }}>← Back</Link>
       <h1>{arch.title}</h1>
+      {arch.parsed_with && (
+        <p style={{ fontSize: 12, color: '#666', marginTop: -8 }}>Parsed with: {arch.parsed_with}</p>
+      )}
       <p style={{ color: '#666' }}>
         <a href={arch.source_url} target="_blank" rel="noreferrer">{arch.source_url}</a>
       </p>

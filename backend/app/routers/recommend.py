@@ -29,6 +29,7 @@ async def recommend(req: RecommendRequest, limit: int = 5):
                 "scraped_at": doc.get("scraped_at"),
                 "resources": doc.get("resources", []),
                 "metadata": meta,
+                "parsed_with": doc.get("parsed_with", "unknown"),
             },
             "score": score,
             "explanation": explanation,

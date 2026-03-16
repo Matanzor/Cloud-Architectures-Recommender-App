@@ -10,8 +10,8 @@ A system that scrapes AWS cloud architectures, parses them into structured data,
 ## Quick Start
 
 ```bash
-git clone <https://github.com/Matanzor/Cloud-Architectures-Recommender-App.git>
-cd sol
+git clone https://github.com/Matanzor/Cloud-Architectures-Recommender-App.git
+cd Cloud-Architectures-Recommender-App
 docker-compose up --build
 ```
 
@@ -40,22 +40,36 @@ Wait for all services to start. Then:
 
 ## Flow
 
-1. Scraper fetches AWS Architecture Blog pages (or uses seed data if scraping fails).
-2. Parser extracts AWS resources (EC2, Lambda, S3, etc.) and infers metadata from text.
-3. Data is stored in MongoDB.
-4. Recommendation API scores architectures by matching user requirements (use case, scale, traffic_pattern, etc.) and returns the best matches.
+1. Scraper loads seed data (10 curated architectures) into MongoDB.
+2. Scraper fetches AWS blog pages from five sources (architecture, aws, compute, database).
+3. For each live-scraped page: extract resources (EC2, Lambda, S3, etc.) and infer metadata.
+4. Data is stored in MongoDB with a `parsed_with` field (seed/AI/rule_based).
+5. Recommendation API scores architectures by matching user requirements and returns the best matches.
+
+## Parsing Flow
+
+- **Seed data:** Pre-structured, always loaded first. No parsing. `parsed_with: "seed"`.
+- **Live-scraped pages:** Try AI first (if `OPENAI_API_KEY` is set and the call succeeds) → `parsed_with: "ai"`. Otherwise fall back to rule-based keyword mapping → `parsed_with: "rule_based"`.
+
+The UI shows `parsed_with` for each architecture so you can verify which path was used.
+
+## Scraping
+
+- **Sources:** Five AWS blog categories — architecture (main + category), aws, compute, database. Up to 20 posts per list page.
+- **Retries:** Each fetch retried up to 3 times with exponential backoff (2s, 4s, 6s).
+- **Politeness:** 1.5s delay between requests.
 
 ## Design Choices
 
 - **MongoDB:** Document model fits nested architecture data (resources + metadata) without joins. Aligns with assignment spec.
 - **Seed data:** Ensures the demo works even if AWS scraping is slow or blocked. Scraper always loads seed first, then optionally scrapes live pages.
-- **Rule-based parsing:** Keyword mapping for metadata inference. No external AI dependency, keeps control and explainability.
+- **Parsing:** AI (OpenAI gpt-4o-mini) when `OPENAI_API_KEY` is set, rule-based keyword mapping as fallback. Best of both: AI for nuance, rules for reliability.
 - **Weighted scoring:** use_case and availability_requirement weighted higher in recommendations.
 
 ## Trade-offs
 
 - Scraping: AWS pages can be dynamic; seed data is the fallback.
-- Parsing: Rule-based may miss nuance; could extend with ML later.
+- Parsing: AI improves nuance, rule-based fallback when no API key.
 - Recommendation: Simple scoring; interpretable for interviews.
 
 ## API Endpoints
@@ -81,3 +95,25 @@ cd frontend && npm install && npm run dev
 ```
 
 Set `MONGODB_URI=mongodb://localhost:27017` for backend. Frontend dev server proxies /api to backend.
+
+## Testing with AI Parsing
+
+When `OPENAI_API_KEY` is set, the parser uses OpenAI (gpt-4o-mini) to infer metadata from scraped text. Otherwise it falls back to rule-based parsing.
+
+**With Docker:**
+
+1. Create a `.env` file in the project root:
+   ```
+   OPENAI_API_KEY=sk-your-openai-api-key
+   ```
+2. Run `docker-compose up --build`
+3. Click "Trigger Scrape" — live-scraped pages will use AI for metadata extraction
+
+**Without Docker:**
+
+```bash
+export OPENAI_API_KEY=sk-your-openai-api-key
+cd backend && uvicorn app.main:app --reload
+```
+
+Then trigger a scrape. Seed data is pre-structured and does not use AI, only newly scraped pages from AWS are parsed with AI.
